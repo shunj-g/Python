@@ -1,8 +1,8 @@
 import numpy
 import matplotlib.pyplot
-from HW import ANN_BP
+from HR import ANN_BP
 '''
-@author:shunj-g 18/6/14
+ @author:shunj-g 18/6/14
 '''
 #初始化网络
 input_nodes = 784#(28*28)
