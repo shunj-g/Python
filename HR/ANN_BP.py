@@ -1,33 +1,20 @@
 import numpy
 import scipy.special
-import sys
 '''
-@author:gsj
+@author:shunj-g 18/6/14
 '''
 
-sys.setrecursionlimit(1000000) #括号中的值为递归深度
-'''
-Scipy是一个高级的科学计算库，它和Numpy联系很密切，
-Scipy一般都是操控Numpy数组来进行科学计算，所以可以说是基于Numpy之上了。
-Scipy有很多子模块可以应对不同的应用，例如插值运算，优化算法、图像处理、数学统计等
-scipy.cluster 	向量量化
-scipy.constants 	数学常量
-scipy.fftpack 	快速傅里叶变换
-scipy.integrate 	积分
-scipy.interpolate 	插值
-scipy.io 	数据输入输出
-scipy.linalg 	线性代数
-scipy.ndimage 	N维图像
-scipy.odr 	正交距离回归
-scipy.optimize 	优化算法
-scipy.signal 	信号处理
-scipy.sparse 	稀疏矩阵
-scipy.spatial 	空间数据结构和算法
-scipy.special 	特殊数学函数
-scipy.stats 	统计函数
-'''
 class NeuralNetWork:
-    def __init__(self,iNodeNum,hNodeNum,oNodeNum,LearningRate):#初始化网络的输入层，中间层，输出层
+    def __init__(self,iNodeNum,hNodeNum,oNodeNum,LearningRate):
+        '''
+        #初始化网络的输入层，中间层，输出层，在本识别中，
+        #是以28*28一张图片的像素点作为总的输入点，通过不断的训练最后
+        #可以将各个参数调到最优
+        :param iNodeNum:输入层节点数
+        :param hNodeNum:中间层节点数
+        :param oNodeNum:输出层节点数
+        :param LearningRate:
+        '''
         self.input = iNodeNum
         self.hide = hNodeNum
         self.output = oNodeNum
@@ -40,30 +27,41 @@ class NeuralNetWork:
         self.activation_function = lambda x : scipy.special.expit(x)
         pass
 
-    def train(self,input_list,output_list):#根据输入的训练数据更新相应的节点的链路权重
+    def train(self,input_list,output_list):
+        '''
+        #根据输入的训练数据更新相应的节点的链路权重
+        :param input_list:
+        :param output_list:
+        :return:
+        '''
        #将数据集转换我我们需要的格式numpy的二维格式
         dataSet = numpy.array(input_list,ndmin = 2).T
         labelSet = numpy.array(output_list,ndmin = 2).T
-       # 计算信号经过输入层后产生的信号量
-        hide_inputs = numpy.dot(self.wih,dataSet)
-       # 中间层神经元对输入的信号做激活函数后得到输出信号
-        hide_outputs = self.activation_function(hide_inputs)
-       # 输出层接收来自中间层的信号量
-        outputs = numpy.dot(self.who,hide_outputs)
-       #输出层对信号量进行激活函数后得到最终输出信号
-        final_outputs = self.activation_function(outputs)
+       # 信号经过输入层后产生的信号量
 
-       #误差计算与更新(误差从后往前更新)
-        output_errors = labelSet-final_outputs
-        hide_errors = numpy.dot(self.who.T,output_errors)
-       # 根据误差计算链路权重的更新量，然后把更新加到原来链路权重上
-        A = output_errors * final_outputs * (1 - final_outputs)
-        self.who += self.lr*numpy.dot(A, numpy.transpose(hide_outputs))
-        B = hide_inputs*(1 - hide_inputs)
-        C = hide_errors * B
-        self.wih += self.lr*numpy.dot(C,numpy.transpose(dataSet))
+        hidden_inputs = numpy.dot(self.wih, dataSet)
+        # 中间层神经元对输入的信号做激活函数后得到输出信号
+        hidden_outputs = self.activation_function(hidden_inputs)
+        # 输出层接收来自中间层的信号量
+        final_inputs = numpy.dot(self.who, hidden_outputs)
+        # 输出层对信号量进行激活函数后得到最终输出信号
+        final_outputs = self.activation_function(final_inputs)
+
+        # 计算误差
+        output_errors = labelSet - final_outputs
+        hidden_errors = numpy.dot(self.who.T, output_errors)
+        # 根据误差计算链路权重的更新量，然后把更新加到原来链路权重上
+        self.who += self.lr * numpy.dot((output_errors * final_outputs * (1 - final_outputs)),
+                                        numpy.transpose(hidden_outputs))
+        self.wih += self.lr * numpy.dot((hidden_errors * hidden_outputs * (1 - hidden_outputs)),
+                                        numpy.transpose(dataSet))
         pass
-    def query(self,inputdata):#根据输入数据进行计算并得到答案
+    def query(self,inputdata):
+        '''
+        #根据输入数据进行计算并得到答案
+        :param inputdata:
+        :return:final_outputs
+        '''
         # 计算信号经过输入层后产生的信号量
         hide_inputs = numpy.dot(self.wih, inputdata)
         # 中间层神经元对输入的信号做激活函数后得到输出信号
