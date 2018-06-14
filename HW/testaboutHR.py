@@ -1,6 +1,6 @@
 import numpy
 import matplotlib.pyplot
-from HR import ANN_BP
+from HW import ANN_BP
 '''
 @author:shunj-g 18/6/14
 '''
