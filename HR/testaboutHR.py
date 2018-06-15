@@ -19,7 +19,7 @@ print(len(trainning_data_list))
 training_data_file.close()
 
 #把数据依靠','区分，并分别读入\n",
-trainning_list = trainning_data_list[1:42000]
+trainning_list = trainning_data_list[1:42001]
 for record in trainning_list:
     all_train_values = record.split(',')
     #print(all_train_values)
@@ -33,7 +33,7 @@ test_data_file = open('mnist/test.csv')
 test_data_list = test_data_file.readlines()
 print(len(test_data_list))
 test_data_file.close()
-test_data_list = test_data_list[1:28000]
+test_data_list = test_data_list[1:28001]
 #test_data_list = trainning_data_list[30001:30011]
 scores = []
 with open('mnist/sample_submission.csv','w') as csvfile:
