@@ -1,5 +1,6 @@
 import numpy
 import matplotlib.pyplot
+import csv
 from HR import ANN_BP
 '''
  @author:shunj-g 18/6/14
@@ -18,8 +19,8 @@ print(len(trainning_data_list))
 training_data_file.close()
 
 #把数据依靠','区分，并分别读入\n",
-trainning_data_list = trainning_data_list[1:30000]
-for record in trainning_data_list:
+trainning_list = trainning_data_list[1:42000]
+for record in trainning_list:
     all_train_values = record.split(',')
     #print(all_train_values)
     inputs = (numpy.asfarray(all_train_values[1:]))/255.0 * 0.99 + 0.01
@@ -30,16 +31,36 @@ for record in trainning_data_list:
 
 test_data_file = open('mnist/test.csv')
 test_data_list = test_data_file.readlines()
+print(len(test_data_list))
 test_data_file.close()
-test_data_list = test_data_list[1:10]
-
+test_data_list = test_data_list[1:28000]
+#test_data_list = trainning_data_list[30001:30011]
 scores = []
+with open('sample_submission.csv','w') as csvfile:
+    writer = csv.writer(csvfile)
+    #县写入columns_name
+    writer.writerow(['ImageId','Label'])
+    #写入多行
+    count = 1
+    for record in test_data_list:
+        all_data = record.split(',')
+        inputs = (numpy.asfarray(all_data)) / 255.0 * 0.99 + 0.01
+        # 让网络判断图片对应的数字
+        outputs = net.query(inputs)
+        # 找到数值最大的神经元对应的编号
+        label = numpy.argmax(outputs)
+        writer.writerow([count, label])
+        count  = count+1
+
+'''
 for record in test_data_list:
     all_data = record.split(',')
-    inputs = (numpy.asfarray(all_data)) / 255.0 * 0.99 + 0.01
+    print('应该输出的数字是：', all_data[0])
+    inputs = (numpy.asfarray(all_data[1:])) / 255.0 * 0.99 + 0.01
     # 让网络判断图片对应的数字
     outputs = net.query(inputs)
     # 找到数值最大的神经元对应的编号
     label = numpy.argmax(outputs)
     #print('out put reslut is : ', label)
     print('网络认为图片的数字是：', label)
+'''
