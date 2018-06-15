@@ -1,7 +1,7 @@
 import numpy
 import scipy.special
 '''
- @author:shunj-g 18/6/14
+@author:shunj-g 18/6/14
 '''
 
 class NeuralNetWork:
