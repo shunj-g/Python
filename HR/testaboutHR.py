@@ -36,7 +36,7 @@ test_data_file.close()
 test_data_list = test_data_list[1:28000]
 #test_data_list = trainning_data_list[30001:30011]
 scores = []
-with open('sample_submission.csv','w') as csvfile:
+with open('mnist/sample_submission.csv','w') as csvfile:
     writer = csv.writer(csvfile)
     #县写入columns_name
     writer.writerow(['ImageId','Label'])
