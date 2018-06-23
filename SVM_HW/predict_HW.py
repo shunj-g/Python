@@ -31,7 +31,7 @@ print(len(trainning_data_list))
 training_data_file.close()
 
 #把数据依靠','区分，并分别读入\n",
-trainning_list = trainning_data_list[1:101]
+trainning_list = trainning_data_list[1:42001]
 dataArr = []
 labelArr = []
 for record in trainning_list:
@@ -42,6 +42,7 @@ for record in trainning_list:
     if all_train_values[0] == 9:
         labels = 1
     else:labels = -1
+    #这里要十分小心，这里是二维数据，在实际操作过程重要始终注意行列的序号
     dataArr.append(inputs)
     labelArr.append(labels)
 
