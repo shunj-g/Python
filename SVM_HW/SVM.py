@@ -55,12 +55,12 @@ class optStruct:
         self.C = C
         self.toler = toler
         self.m = shape(dataMatIn)[0]#这里的shape(matrix) 返回的是一个参数list,0-->行数，1-->列数
-        self.alphas = mat(zeros((self.m,1)))#m*1的matrix
+        self.alphas = mat(zeros((self.m,10)))#m*1的matrix
         self.b = 0
         self.eCache = mat(zeros((self.m, 2))) #第一列是作为有效标志
         self.K = mat(zeros((self.m,self.m)))#K是m*m的值
         for i in range(self.m):#K的值是一个完全不同的
-            self.K[:,i] = kernelTrans(self.X, self.X[:,i], kTup)
+            self.K[:,i] = kernelTrans(self.X, self.X[i,:], kTup)
 def calcEk(obj, k):
     '''
     #计算误差
@@ -72,9 +72,9 @@ def calcEk(obj, k):
         f(x) = w.T*x + b = alpha_i*y_i*x_i.T*x+b  这里的x转化为核函数k(x,x_i)计算出目标函数值
     '''
     #得到的数据的
-    fXk = float(multiply(obj.alphas,obj.labelMat).T*obj.K[:,k] + obj.b)
+    fXk = (multiply(obj.alphas,obj.labelMat).T*obj.K[:,k] + obj.b).astype(float)
     #计算出误差值
-    Ek = fXk - float(obj.labelMat[k])
+    Ek = fXk - (obj.labelMat[k]).astype(float)
     return Ek
 #
 def selectJrand(i,m):
@@ -159,7 +159,7 @@ def innerL(i, obj):
             sigma <=1 样本分类正确
     '''
     # 如果目前x不能满足KTT条件
-    if ((obj.labelMat[i]*Ei < -obj.toler) and (obj.alphas[i] < obj.C)) or ((obj.labelMat[i]*Ei > obj.toler) and (obj.alphas[i] > 0)):
+    if (((obj.labelMat[i]*Ei).any() < -obj.toler) and ((obj.alphas[i]).any() < obj.C)) or (((obj.labelMat[i]*Ei).any() > obj.toler) and ((obj.alphas[i]).any() > 0)):
         j,Ej = selectJ(obj, i, Ei)
         alphaIold = obj.alphas[i].copy(); alphaJold = obj.alphas[j].copy()#克隆一个
         if (obj.labelMat[i] != obj.labelMat[j]):
@@ -185,7 +185,7 @@ def innerL(i, obj):
         return 1
     else: return 0
 
-def smoPK(dataMatIn, classLabels, C, toler, maxIter):  # full Platt SMO
+def smoP(dataMatIn, classLabels, C, toler, maxIter,kTup=('lin', 0)):  # full Platt SMO
         '''
 
         :param dataMatIn:
@@ -195,7 +195,7 @@ def smoPK(dataMatIn, classLabels, C, toler, maxIter):  # full Platt SMO
         :param maxIter:
         :return:
         '''
-        obj = optStruct(mat(dataMatIn), mat(classLabels).transpose(), C, toler);
+        obj = optStruct(mat(dataMatIn), mat(classLabels), C, toler,kTup)
         iter = 0
         entireSet = True
         alphaPairsChanged = 0
