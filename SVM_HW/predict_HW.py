@@ -8,7 +8,7 @@ import SVM_HW.SVM as SVM
  总体方法是：孤立一个数字，从其他的数字中区分开，然后就可以进行数据识别了
 '''
 def trainDigits(dataArr,labelArr,kTup=('rbf', 10)):
-    b,alphas = SVM.smoP(dataArr, labelArr, 200, 0.0001, 10000,kTup)
+    b,alphas = SVM.smoP(numpy.mat(dataArr), numpy.mat(labelArr), 200, 0.0001, 10000,kTup)
     datMat=numpy.mat(dataArr); labelMat = numpy.mat(labelArr).transpose()
     svInd=numpy.nonzero(alphas.A>0)[0]
     sVs=datMat[svInd]
