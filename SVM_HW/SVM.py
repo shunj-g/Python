@@ -21,7 +21,7 @@ from numpy import *
 #定义核函数,该函数可以用来进行核函数调整
 def kernelTrans(X, A, kTup):
     '''
-    #内核或将数据转换为更高维度的空间
+    #内核或将数据转换为更高维度的空间，将数据进行核函数化
     :param X:X的数据是m*n的
     :param A:参数矩阵m*1
     :param kTup: 不同的 kernel function 'lin'---->#linear kernel,,,'rbf'---->#Radial Basis Function kernel
@@ -60,8 +60,12 @@ class optStruct:
         self.b = 0
         self.eCache = mat(zeros((self.m, 2))) #第一列是作为有效标志
         self.K = mat(zeros((self.m,self.m)))#K是m*m的值
-        for i in range(self.m):#K的值是一个完全不同的
+        for i in range(self.m):#K的值是一个完全不同的#将数据进行核函数化
             self.K[:,i] = kernelTrans(self.X, self.X[i,:], kTup)
+    def get_alphas(self):
+        return self.alphas
+    def get_b(self):
+        return self.b
 def calcEk(obj, k):
     '''
     #计算误差
@@ -74,8 +78,11 @@ def calcEk(obj, k):
     '''
     #得到的数据的
     fXk = float(multiply(obj.alphas,obj.labelMat.T).T*obj.K[:,k] + obj.b)
+    print(fXk)
     #计算出误差值
-    Ek = fXk - float(obj.labelMat[k])
+    labels = (obj.labelMat).astype(float)
+    Ek = fXk - labels[0,k]#是零行
+    print(Ek)
     return Ek
 #
 def selectJrand(i,m):
@@ -160,10 +167,10 @@ def innerL(i, obj):
             sigma <=1 样本分类正确
     '''
     # 如果目前x不能满足KTT条件
-    if (((obj.labelMat[i]*Ei).any() < -obj.toler) and ((obj.alphas[i]).any() < obj.C)) or (((obj.labelMat[i]*Ei).any() > obj.toler) and ((obj.alphas[i]).any() > 0)):
+    if (((obj.labelMat[0,i]*Ei)< -obj.toler) and ((obj.alphas[i]) < obj.C)) or (((obj.labelMat[0,i]*Ei) > obj.toler) and ((obj.alphas[i]) > 0)):
         j,Ej = selectJ(obj, i, Ei)
         alphaIold = obj.alphas[i].copy(); alphaJold = obj.alphas[j].copy()#克隆一个
-        if (obj.labelMat[i] != obj.labelMat[j]):
+        if (obj.labelMat[0,i] != obj.labelMat[0,j]):
             L = max(0, obj.alphas[j] - obj.alphas[i])
             H = min(obj.C, obj.C + obj.alphas[j] - obj.alphas[i])
         else:
@@ -172,14 +179,14 @@ def innerL(i, obj):
         if L==H: print("L==H"); return 0
         eta = 2.0 * obj.K[i,j] - obj.K[i,i] - obj.K[j,j] #改变为内核
         if eta >= 0: print("eta>=0"); return 0
-        obj.alphas[j] -= obj.labelMat[j]*(Ei - Ej)/eta
+        obj.alphas[j] -= obj.labelMat[0,j]*(Ei - Ej)/eta
         obj.alphas[j] = clipAlpha(obj.alphas[j],H,L)
         updateEk(obj, j)
         if (abs(obj.alphas[j] - alphaJold) < 0.00001): print("j not moving enough"); return 0
-        obj.alphas[i] += obj.labelMat[j]*obj.labelMat[i]*(alphaJold - obj.alphas[j])#更新i的数量与j相同
+        obj.alphas[i] += obj.labelMat[0,j]*obj.labelMat[0,i]*(alphaJold - obj.alphas[j])#更新i的数量与j相同
         updateEk(obj, i) #这是为Ecache添加的。                 #更新是反方向的
-        b1 = obj.b - Ei- obj.labelMat[i]*(obj.alphas[i]-alphaIold)*obj.K[i,i] - obj.labelMat[j]*(obj.alphas[j]-alphaJold)*obj.K[i,j]
-        b2 = obj.b - Ej- obj.labelMat[i]*(obj.alphas[i]-alphaIold)*obj.K[i,j]- obj.labelMat[j]*(obj.alphas[j]-alphaJold)*obj.K[j,j]
+        b1 = obj.b - Ei- obj.labelMat[0,i]*(obj.alphas[i]-alphaIold)*obj.K[i,i] - obj.labelMat[0,j]*(obj.alphas[j]-alphaJold)*obj.K[i,j]
+        b2 = obj.b - Ej- obj.labelMat[0,i]*(obj.alphas[i]-alphaIold)*obj.K[i,j]- obj.labelMat[0,j]*(obj.alphas[j]-alphaJold)*obj.K[j,j]
         if (0 < obj.alphas[i]) and (obj.C > obj.alphas[i]): obj.b = b1
         elif (0 < obj.alphas[j]) and (obj.C > obj.alphas[j]): obj.b = b2
         else: obj.b = (b1 + b2)/2.0
