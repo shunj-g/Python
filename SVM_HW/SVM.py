@@ -41,6 +41,7 @@ def kernelTrans(X, A, kTup):
         K = exp(K/(-1*kTup[1]**2))
     else: raise NameError('不能得到核函数')
     return K
+###
 class optStruct:
     def __init__(self,dataMatIn,classLabels,C,toler,kTup):
         '''
@@ -55,7 +56,7 @@ class optStruct:
         self.C = C
         self.toler = toler
         self.m = shape(dataMatIn)[0]#这里的shape(matrix) 返回的是一个参数list,0-->行数，1-->列数
-        self.alphas = mat(zeros((self.m,10)))#m*1的matrix
+        self.alphas = mat(zeros((self.m,1)))#m*1的matrix
         self.b = 0
         self.eCache = mat(zeros((self.m, 2))) #第一列是作为有效标志
         self.K = mat(zeros((self.m,self.m)))#K是m*m的值
@@ -72,9 +73,9 @@ def calcEk(obj, k):
         f(x) = w.T*x + b = alpha_i*y_i*x_i.T*x+b  这里的x转化为核函数k(x,x_i)计算出目标函数值
     '''
     #得到的数据的
-    fXk = (multiply(obj.alphas,obj.labelMat).T*obj.K[:,k] + obj.b).astype(float)
+    fXk = float(multiply(obj.alphas,obj.labelMat.T).T*obj.K[:,k] + obj.b)
     #计算出误差值
-    Ek = fXk - (obj.labelMat[k]).astype(float)
+    Ek = fXk - float(obj.labelMat[k])
     return Ek
 #
 def selectJrand(i,m):
@@ -185,7 +186,7 @@ def innerL(i, obj):
         return 1
     else: return 0
 
-def smoP(dataMatIn, classLabels, C, toler, maxIter,kTup=('lin', 0)):  # full Platt SMO
+def smoP(dataMatIn, classLabels, C, toler, maxIter,kTup=('lin', 0)):  # Platt SMO
         '''
 
         :param dataMatIn:
@@ -195,6 +196,7 @@ def smoP(dataMatIn, classLabels, C, toler, maxIter,kTup=('lin', 0)):  # full Pla
         :param maxIter:
         :return:
         '''
+
         obj = optStruct(mat(dataMatIn), mat(classLabels), C, toler,kTup)
         iter = 0
         entireSet = True

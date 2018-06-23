@@ -5,8 +5,8 @@ import SVM_HW.SVM as SVM
 '''
  @author:shunj-g 18/6/23
  SVM只能区分两类数据，要像伸进网络那样去做个总体的平分要调结构
+ 总体方法是：孤立一个数字，从其他的数字中区分开，然后就可以进行数据识别了
 '''
-
 def trainDigits(dataArr,labelArr,kTup=('rbf', 10)):
     b,alphas = SVM.smoP(dataArr, labelArr, 200, 0.0001, 10000,kTup)
     datMat=numpy.mat(dataArr); labelMat = numpy.mat(labelArr).transpose()
@@ -14,7 +14,6 @@ def trainDigits(dataArr,labelArr,kTup=('rbf', 10)):
     sVs=datMat[svInd]
     labelSV = labelMat[svInd]
     print ('there are %d Support Vectors' % numpy.shape(sVs)[0])
-
     m,n = numpy.shape(datMat)
     errorCount = 0
     for i in range(m):
@@ -22,6 +21,9 @@ def trainDigits(dataArr,labelArr,kTup=('rbf', 10)):
         predict=kernelEval.T * numpy.multiply(labelSV,alphas[svInd]) + b
         if numpy.sign(predict)!=numpy.sign(labelArr[i]): errorCount += 1
     print('the training error rate is: %f'% (float(errorCount)/m))
+
+
+
 #open函数里的路径根据数据存储的路径来设定\n",
 training_data_file = open('mnist/train.csv')
 trainning_data_list = training_data_file.readlines()
@@ -35,10 +37,11 @@ labelArr = []
 for record in trainning_list:
     all_train_values = record.split(',')
     #print(all_train_values)
-    inputs = (numpy.asfarray(all_train_values[1:]))/255.0 * 0.99 + 0.01
+    inputs = numpy.sign((numpy.asfarray(all_train_values[1:]))/255.0 * 0.99)
     # 设置图片与数值的对应关系",
-    labels = numpy.zeros(10) + 0.001 #0~9十个数
-    labels[int(all_train_values[0])] = 0.999
+    if all_train_values[0] == 9:
+        labels = 1
+    else:labels = -1
     dataArr.append(inputs)
     labelArr.append(labels)
 
