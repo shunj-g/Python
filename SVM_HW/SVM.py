@@ -185,7 +185,7 @@ def innerL(i, obj):
         return 1
     else: return 0
 
-    def smoPK(dataMatIn, classLabels, C, toler, maxIter):  # full Platt SMO
+def smoPK(dataMatIn, classLabels, C, toler, maxIter):  # full Platt SMO
         '''
 
         :param dataMatIn:
@@ -195,9 +195,9 @@ def innerL(i, obj):
         :param maxIter:
         :return:
         '''
-        obj = optStruct(mat(dataMatIn), mat(classLabels).transpose(), C, toler)
+        obj = optStruct(mat(dataMatIn), mat(classLabels).transpose(), C, toler);
         iter = 0
-        entireSet = True;
+        entireSet = True
         alphaPairsChanged = 0
         while (iter < maxIter) and ((alphaPairsChanged > 0) or (entireSet)):
             alphaPairsChanged = 0
