@@ -5,6 +5,17 @@ from numpy import *
 #TODO 编写SVM的相关算法，然后就手写体进行识别和分类
 '''
 #本算法是机遇SMO算法的实现
+#从实现上来说，对于标准的SMO能提高速度的地方有：
+
+       1、能用缓存的地方尽量用，例如，缓存核矩阵，减少重复计算，但是增加了空间复杂度；
+
+       2、如果SVM的核为线性核时候，可直接更新，毕竟每次计算的代价较高，于是可以利用旧
+       的乘子信息来更新。
+
+       3、关注可以并行的点，用并行方法来改进，例如可以使用MPI，将样本分为若干份，在查
+       找最大的乘子时可以现在各个节点先找到局部最大点，然后再从中找到全局最大点；又如
+       停止条件是监视对偶间隙，那么可以考虑在每个节点上计算出局部可行间隙，最后在master
+       节点上将局部可行间隙累加得到全局可行间隙。
 '''
 
 #定义核函数,该函数可以用来进行核函数调整
@@ -123,7 +134,7 @@ def clipAlpha(aj,H,L):
 def updateEk(obj, k):
     '''
     #在任何alpha改变后，更新缓存中的新值
-    :param oS:
+    :param obj:
     :param k:
     :return:
     '''
@@ -131,6 +142,12 @@ def updateEk(obj, k):
     obj.eCache[k] = [1,Ek]
 
 def innerL(i, obj):
+    '''
+
+    :param i:
+    :param obj:
+    :return:
+    '''
     Ei = calcEk(obj, i)
 
     '''
@@ -167,4 +184,38 @@ def innerL(i, obj):
         else: obj.b = (b1 + b2)/2.0
         return 1
     else: return 0
+
+    def smoPK(dataMatIn, classLabels, C, toler, maxIter):  # full Platt SMO
+        '''
+
+        :param dataMatIn:
+        :param classLabels:
+        :param C:
+        :param toler:
+        :param maxIter:
+        :return:
+        '''
+        obj = optStruct(mat(dataMatIn), mat(classLabels).transpose(), C, toler)
+        iter = 0
+        entireSet = True;
+        alphaPairsChanged = 0
+        while (iter < maxIter) and ((alphaPairsChanged > 0) or (entireSet)):
+            alphaPairsChanged = 0
+            if entireSet:  #
+                for i in range(obj.m):
+                    alphaPairsChanged += innerL(i, obj)
+                    print("fullSet, iter: %d i:%d, pairs changed %d" % (iter, i, alphaPairsChanged))
+                iter += 1
+            else:  # 越过无界的alphas（拉格朗日乘子）
+                nonBoundIs = nonzero((obj.alphas.A > 0) * (obj.alphas.A < C))[0]
+                for i in nonBoundIs:
+                    alphaPairsChanged += innerL(i, obj)
+                    print("non-bound, iter: %d i:%d, pairs changed %d" % (iter, i, alphaPairsChanged))
+                iter += 1
+            if entireSet:
+                entireSet = False  # 整个设置循环切换
+            elif (alphaPairsChanged == 0):
+                entireSet = True
+            print("iteration number: %d" % iter)
+        return obj.b, obj.alphas
 
