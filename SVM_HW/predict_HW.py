@@ -1,19 +1,20 @@
 import numpy
 import csv
-
+from
 import SVM_HW.SVM as SVM
 '''
  @author:shunj-g 18/6/23
  SVM只能区分两类数据，要像伸进网络那样去做个总体的平分要调结构
  总体方法是：孤立一个数字，从其他的数字中区分开，然后就可以进行数据识别了
+ 
 '''
 def trainDigits(dataArr,labelArr,kTup=('rbf', 10)):
-    b,alphas = SVM.smoP(numpy.mat(dataArr), numpy.mat(labelArr), 200, 0.0001, 10000,kTup)
+    b,alphas = SVM.smoP(numpy.mat(dataArr), numpy.mat(labelArr), 200, 0.0001, 10000,kTup)#通过SVM找到了一个分界线的参数值
     datMat=numpy.mat(dataArr); labelMat = numpy.mat(labelArr).transpose()
-    svInd=numpy.nonzero(alphas.A>0)[0]
+    svInd=numpy.nonzero(alphas.A>0)[0]#可以得到的数据的
     sVs=datMat[svInd]
     labelSV = labelMat[svInd]
-    print ('there are %d Support Vectors' % numpy.shape(sVs)[0])
+    #print ('there are %d Support Vectors' % numpy.shape(sVs)[0])
     m,n = numpy.shape(datMat)
     errorCount = 0
     for i in range(m):
@@ -31,7 +32,7 @@ print(len(trainning_data_list))
 training_data_file.close()
 
 #把数据依靠','区分，并分别读入\n",
-trainning_list = trainning_data_list[1:42001]
+trainning_list = trainning_data_list[1:1001]
 dataArr = []
 labelArr = []
 for record in trainning_list:
@@ -39,7 +40,7 @@ for record in trainning_list:
     #print(all_train_values)
     inputs = numpy.sign((numpy.asfarray(all_train_values[1:]))/255.0 * 0.99)
     # 设置图片与数值的对应关系",
-    if all_train_values[0] == 9:
+    if all_train_values[0] == 2:
         labels = 1
     else:labels = -1
     #这里要十分小心，这里是二维数据，在实际操作过程重要始终注意行列的序号
