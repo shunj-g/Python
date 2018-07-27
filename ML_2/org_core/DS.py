@@ -1,6 +1,7 @@
 '''
    @author  18/
    单层决策树
+   ADBOOST
 '''
 from numpy import  *
 '''
@@ -80,7 +81,7 @@ def buildStump(dataArr,classLabels,D):#构建单层决策树
 '''
 def adaBoostTrainDS(dataArr,classLabels,numIt = 40):
     weakClassArr = []#弱分类
-    m = shape(dataArr)[0]#
+    m = shape(dataArr)[0]#获取行向量的行数
     D = mat(ones((m,1))/m)#初始化权重向量，给每个样本相同的权重，[[1/m],[1/m],[1/m],...]
     aggClassEst = mat(zeros((m,1)))# 初始化每个样本的预估值为0
     for i in range(numIt):
