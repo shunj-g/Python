@@ -3,6 +3,9 @@ from numpy import *
 @author shunj-g this docment create from 18/23/6
 '''
 #TODO 编写SVM的相关算法，然后就手写体进行识别和分类
+'''
+该分类器是有监督的分类器。
+'''
 '''###############################################################################
 #本算法是机遇SMO算法的实现
 #从实现上来说，对于标准的SMO能提高速度的地方有：
@@ -16,8 +19,8 @@ from numpy import *
 '''
 #定义核函数,该函数可以用来进行核函数调整
 def kernelTrans(X, A, kTup):
+    #通过将x--->z转存储使得速度更快这样的话速度
     '''
-    #通过将x--->z转存储使得速度更快
     #内核或将数据转换为更高维度的空间，将数据进行核函数化
     :param X:X的数据是m*n的
     :param A:参数矩阵m*1
@@ -29,13 +32,14 @@ def kernelTrans(X, A, kTup):
     '''
     m,n = shape(X)
     K = mat(zeros((m,1)))#K的数据是 m*1的matrix
-    if kTup[0]=='lin': K = X * A.T#--->m*n 变成一行了
+    if kTup[0]=='lin':
+        K = X * A.T#--->m*n 变成一行了
     elif kTup[0]=='rbf':
         for j in range(m):
             deltaRow = X[j,:] - A#每一行进行运算
             K[j] = deltaRow*deltaRow.T#得到一列的值  得到一个准确值
-        # 在NumPy中除是元素级的而不是像Matlab那样的矩阵的除法
-        K = exp(K/(-1*kTup[1]**2))
+        # 在NumPy中除是元素级的而不是像Matlab那样的矩阵的除法#
+        K = exp(K/(-1*kTup[1]**2))#k = e^{k/(-1*kTup[1]**2)}
     else: raise NameError('不能得到核函数')
     return K
 ###
@@ -45,8 +49,8 @@ class optStruct:
         :param dataMatIn: 数据集----->X
         :param classLabels:类别标签---->Y
         :param C:常数C
-        :param toler:容错率---》软间隔SVM
-        :param kTup: kernel 的类型
+        :param toler:容错率--->软间隔SVM
+        :param kTup: kernel (核函数)的类型
         '''
         self.X = dataMatIn
         self.labelMat = classLabels
@@ -63,9 +67,9 @@ class optStruct:
         return self.alphas
     def get_b(self):
         return self.b
-def calcEk(obj, k):
+def calcEk(obj, k):##
     '''
-    #计算误差
+    #计算误差:有监督的支持向量分类;
     :param self:
     :param k:
     :return: EK
@@ -75,11 +79,11 @@ def calcEk(obj, k):
     '''
     #得到的数据的
     fXk = float(multiply(obj.alphas,obj.labelMat.T).T*obj.K[:,k] + obj.b)
-    print(fXk)
+   # print(fXk)
     #计算出误差值
     labels = (obj.labelMat).astype(float)
     Ek = fXk - labels[0,k]#是零行
-    print(Ek)
+   # print(Ek)
     return Ek
 #
 def selectJrand(i,m):
@@ -166,6 +170,7 @@ def innerL(i, obj):
     if (((obj.labelMat[0,i]*Ei)< -obj.toler) and ((obj.alphas[i]) < obj.C)) or (((obj.labelMat[0,i]*Ei) > obj.toler) and ((obj.alphas[i]) > 0)):
         j,Ej = selectJ(obj, i, Ei)
         alphaIold = obj.alphas[i].copy(); alphaJold = obj.alphas[j].copy()#克隆一个
+        #这个SVM的求解是有问题的
         if (obj.labelMat[0,i] != obj.labelMat[0,j]):
             L = max(0, obj.alphas[j] - obj.alphas[i])
             H = min(obj.C, obj.C + obj.alphas[j] - obj.alphas[i])
@@ -186,12 +191,12 @@ def innerL(i, obj):
         if (0 < obj.alphas[i]) and (obj.C > obj.alphas[i]): obj.b = b1
         elif (0 < obj.alphas[j]) and (obj.C > obj.alphas[j]): obj.b = b2
         else: obj.b = (b1 + b2)/2.0
+        print('success return the value!')
         return 1
     else: return 0
 
-def smoP(dataMatIn, classLabels, C, toler, maxIter,kTup=('lin', 0)):  # Platt SMO
+def smoP(dataMatIn, classLabels, C, toler, maxIter,kTup):  # Platt SMO
         '''
-
         :param dataMatIn:
         :param classLabels:
         :param C:
@@ -200,7 +205,7 @@ def smoP(dataMatIn, classLabels, C, toler, maxIter,kTup=('lin', 0)):  # Platt SM
         :return:
         '''
 
-        obj = optStruct(mat(dataMatIn), mat(classLabels), C, toler,kTup)
+        obj = optStruct(dataMatIn, classLabels, C, toler,kTup)
         iter = 0
         entireSet = True
         alphaPairsChanged = 0
@@ -209,18 +214,18 @@ def smoP(dataMatIn, classLabels, C, toler, maxIter,kTup=('lin', 0)):  # Platt SM
             if entireSet:  #
                 for i in range(obj.m):
                     alphaPairsChanged += innerL(i, obj)
-                    print("fullSet, iter: %d i:%d, pairs changed %d" % (iter, i, alphaPairsChanged))
+                   # print("fullSet, iter: %d i:%d, pairs changed %d" % (iter, i, alphaPairsChanged))
                 iter += 1
             else:  # 越过无界的alphas（拉格朗日乘子）
                 nonBoundIs = nonzero((obj.alphas.A > 0) * (obj.alphas.A < C))[0]
                 for i in nonBoundIs:
                     alphaPairsChanged += innerL(i, obj)
-                    print("non-bound, iter: %d i:%d, pairs changed %d" % (iter, i, alphaPairsChanged))
+                   # print("non-bound, iter: %d i:%d, pairs changed %d" % (iter, i, alphaPairsChanged))
                 iter += 1
             if entireSet:
                 entireSet = False  # 整个设置循环切换
             elif (alphaPairsChanged == 0):
                 entireSet = True
-            print("iteration number: %d" % iter)
+           # print("iteration number: %d" % iter)
         return obj.b, obj.alphas
 
