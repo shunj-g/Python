@@ -42,7 +42,7 @@ def chooseBestSplit(dataSet, leafType=regLeaf, errType=regErr, ops=(1, 4)):
     S = errType(dataSet)
     bestS = inf####
     bestIndex = 0
-    bestValue = 0
+    bestValue = 0#
     for featIndex in range(n - 1):
         for splitVal in set(dataSet[:, featIndex]):#得到的数据
             mat0, mat1 = binSplitDataSet(dataSet, featIndex, splitVal)
@@ -69,6 +69,6 @@ def createTree(dataSet, leafType=regLeaf, errType=regErr, ops=(1, 4)):  # 假设
     lSet, rSet = binSplitDataSet(dataSet, feat, val)
     retTree['left'] = createTree(lSet, leafType, errType, ops)
     retTree['right'] = createTree(rSet, leafType, errType, ops)
-    return retTree
+    return retTree#返回决策树
 
 
