@@ -15,8 +15,10 @@ def rebuild(dif):
             try:
                 image = cv2.imread(filepath)
                 dim = (227,227)#这个是可以变化的
-                resized = cv2.resize(image,dim)
-                path = "D:\\cat_and_dog\\dog_r\\"+file
+                resized = cv2.resize(image,dim)#变化数据集维度
+                #path = "E:\\cat_and_dog\\dog_r\\"+file
+                path = ".\\dataset_kaggledogvscat\\train"+file
+                #E:\计算机视觉\Python\AlexNet\dataset_kaggledogvscat\train
                 cv2.imwrite(path,resized)
             except:#当出现坏的图片数据的时候，会抛出相关的异常，并且删除图片
                 print(filepath)

@@ -6,9 +6,9 @@ import time
 import AlexNet.TFRecord as reader2
 import os
 
-X_train, y_train = reader2.get_file("c:\\cat_and_dog_r")
-
-image_batch, label_batch = reader2.get_batch(X_train, y_train, 227, 227, 200, 2048)
+#X_train, y_train = reader2.get_file("c:\\cat_and_dog_r")#获取数据集
+X_train, y_train = reader2.get_file(".\\dataset_kaggledogvscat\\train")#获取数据集
+image_batch, label_batch = reader2.get_batch(X_train, y_train, 227, 227, 200, 2048)#数据集划分批处理块
 
 def batch_norm(inputs, is_training,is_conv_out=True,decay = 0.999):
 
@@ -94,7 +94,8 @@ with tf.device('/cpu:0'):
     conv3 = tf.nn.relu(conv3)
 
     # 卷积层4
-    conv4 = tf.nn.conv2d(conv3, W_conv['conv4'], strides=[1, 1, 1, 1], padding='SAME')
+    conv4 = tf.nn.conv2d(conv3, W_conv['conv4']
+                         , strides=[1, 1, 1, 1], padding='SAME')
     conv4 = tf.nn.bias_add(conv4, b_conv['conv4'])
     conv4 = batch_norm(conv4,True)
     conv4 = tf.nn.relu(conv4)
@@ -120,8 +121,9 @@ with tf.device('/cpu:0'):
 
     # 定义损失
     loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(fc3, y))
+    #模型训练
     optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(loss)
-    # 评估模型
+    # 评估模型#
     correct_pred = tf.equal(tf.argmax(fc3, 1), tf.argmax(y, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
@@ -147,6 +149,7 @@ def train(opech):
         start_time = time.time()
 
         coord = tf.train.Coordinator()
+        #启动图中收集的所有队列运行器。
         threads = tf.train.start_queue_runners(coord=coord)
         step = 0
         for i in range(opech):

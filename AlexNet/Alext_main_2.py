@@ -182,7 +182,6 @@ def train(opech):
         plt.savefig('cat_and_dog_AlexNet.jpg', dpi=200)
 
 from PIL import Image
-
 def per_class(imagefile):
 
     image = Image.open(imagefile)
