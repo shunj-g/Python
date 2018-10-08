@@ -24,10 +24,10 @@ def get_file(file_dir):
         for name in files:#所有的文件
             images.append(os.path.join(root,name))#连接两个(或更多)路径
             #获取10个子目录的文件夹的名字
-            for name in sub_floders:#
-                temp.append(os.path.join(root,name))#root
-                pass
-            print(files)##打印相关的文件数据集
+        for name in sub_floders:#
+            temp.append(os.path.join(root,name))#root
+            pass
+            #print(files)##打印相关的文件数据集
             pass
     pass
     #temp
